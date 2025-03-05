@@ -39,242 +39,223 @@ export type Entry = Signal<{
   length: number,
 }>;
 
+// Trapeze was originally designed so `next` and `previous` could walk across an
+// arbitrarily nested shared stack.  Sharing the stack was what enabled a single
+// set of nav buttons to page through an unknown component tree.
+//
+// We've since realized the need to have multiple trapeze stacks be siblings on
+// a single page.  To support this use case without breaking the primary one,
+// everything that closes over the stack is now wrapped in `createTrapeze`,
+// giving them a shared namespace.  To support the original API, where
+// everything controlled a common stack, we create a single shared instance in
+// `index` and export its closures.  Situations that call for multiple parallel
+// stacks can instantiate them with `createTrapeze`.
 
-// TypeScript gets mad if a component returns a primitive (string, number, list)
-// therefore, we cast/wrap the return values of these components to placate
-// TypeScript, even though they'd work without them.
-
-export function Spotlight({
-  resetScrollPositionOnChange,
-  children,
+export function createTrapeze({
+  updateHistoryIndex = (increment) => {}
 }: {
-  resetScrollPositionOnChange?: boolean,
-  children: ComponentChildren,
-}): VNode<unknown> {
-  const list = toChildArray(children);
-  const index = useTrapeze(list.length);
+  updateHistoryIndex?: (increment: number) => void,
+} = {}) {
+  // TypeScript gets mad if a component returns a primitive (string, number,
+  // list) therefore, we cast/wrap the return values of these components to
+  // placate TypeScript, even though they'd work without them.
 
-  useEffect(
-    () => {
-      if (resetScrollPositionOnChange) {
-        window.scroll(0, 0);
-      }
-    },
-    [index]
-  );
+  function Spotlight({
+    resetScrollPositionOnChange,
+    children,
+  }: {
+    resetScrollPositionOnChange?: boolean,
+    children: ComponentChildren,
+  }): VNode<unknown> {
+    const list = toChildArray(children);
+    const index = useTrapeze(list.length);
 
-  return list[index] as VNode<unknown>;
-}
+    useEffect(
+      () => {
+        if (resetScrollPositionOnChange) {
+          window.scroll(0, 0);
+        }
+      },
+      [index]
+    );
 
-export function Build({ children }: { children: ComponentChildren }): VNode<unknown> {
-  const list = toChildArray(children);
-  const index = useTrapeze(list.length);
+    return list[index] as VNode<unknown>;
+  }
 
-  return (
-    <Fragment>
-      { list.slice(0, index + 1) }
-    </Fragment>
-  );
-}
+  function Build({ children }: { children: ComponentChildren }): VNode<unknown> {
+    const list = toChildArray(children);
+    const index = useTrapeze(list.length);
+
+    return (
+      <Fragment>
+        { list.slice(0, index + 1) }
+      </Fragment>
+    );
+  }
 
 
 
-export function useTrapeze(length: number) {
-  const entry = useSignal({
-    index: 0,
-    length,
-  });
-
-  // Keep length current, e.g. if Spotlight gets more children
-  if (length !== entry.value.length) {
-    entry.value = {
-      ...entry.value,
+  function useTrapeze(length: number) {
+    const entry = useSignal({
+      index: 0,
       length,
-    }
-  }
+    });
 
-  useEffect(
-    () => {
-      addToStack(entry);
-    },
-    []
-  );
-
-  return entry.value.index;
-}
-
-// In React/Preact, the `useEffect` calls in children are run before those in
-// their parents.
-//
-// Imagine a tree of components: `trunk`, `branch`, and `leafA`.  If each called
-// `useTrapeze` and were directly added to the stack, it would be `
-// [trunk, branch, leafA]`.  Then, when `next()` is called and `leafA` is
-// replaced by `leafB` in the component tree, the stack would look like this: `
-// [leafB, trunk, branch]`.  `leafB` is on the wrong end of the stack!
-//
-// The solution to this problem is to use a queue.  Instead of being added to
-// the stack directly, `useTrapeze` calls are queued while we wait for all the
-// other `useTrapeze` calls from this frame to be made.  Then, they are put on
-// the stack in LIFO order.  This gives you `[leafA, branch, trunk]` for the
-// first tree and then `[leafB, branch, trunk]` later on.  The leaves are put
-// on the same side of the stack, regardless of if there were other
-// `useTrapeze` calls in a frame.
-//
-// `queue` is merged into `stack` one frame after rendering, as well as if
-// `next` or `previous` is called.  Hopefully this is sufficient.
-
-const stack: Signal<Array<Entry>> = signal([]);
-let queue: Array<Entry> = [];
-
-function moveQueueToStack() {
-  if (queue.length) {
-    const currentStack = stack.value;
-    // `queue` puts the newest at the end.  `stack` puts the newest at the
-    // beginning.  This works around the inside-out ordering problem without
-    // needing to manually reorder anything.
-    stack.value = [
-      ...queue,
-      ...currentStack,
-    ];
-    queue = [];
-  }
-}
-
-function addToStack(entry: Entry) {
-  queue = [
-    ...queue,
-    entry,
-  ];
-  requestAnimationFrame(moveQueueToStack);
-}
-
-export function attachTrapezeToArrowKeys() {
-  window.addEventListener(
-    'keydown',
-    function onKeyDown(event: KeyboardEvent) {
-      switch (event.key) {
-        case 'ArrowLeft':
-          previous();
-          break;
-
-        case 'ArrowRight':
-          next();
-          break;
-      }
-    }
-  );
-}
-
-let historyIndex: number;
-
-export function attachTrapezeToHistory() {
-  historyIndex = 0;
-  updateHistoryIndex();
-
-  window.addEventListener(
-    'popstate',
-    function onPopState() {
-      // base-64 encode the URL to make it less tempting for manual mucking
-      const incomingIndex = parseInt(atob(window.location.hash.substr(1)));
-
-      if (incomingIndex > historyIndex) {
-        next();
-
-      } else if (incomingIndex < historyIndex) {
-        previous();
-      }
-    }
-  );
-}
-
-function updateHistoryIndex(increment = 0) {
-  if (historyIndex !== undefined) {
-    historyIndex += increment;
-    window.location.hash = btoa(`${ historyIndex }`);
-  }
-}
-
-export function next() {
-  moveQueueToStack();
-
-  const currentStack = stack.value;
-  const entry = currentStack[0];
-
-  const {
-    index,
-    length,
-  } = entry.value;
-
-  if (index < length - 1) {
-    entry.value = {
-      index: index + 1,
-      length
-    };
-
-  } else if (currentStack.length > 1) {
-    stack.value = currentStack.slice(1);
-    next();
-  }
-
-  updateHistoryIndex(+1);
-}
-
-export function previous() {
-  moveQueueToStack();
-
-  const currentStack = stack.value;
-  const entry = currentStack[0];
-
-  const {
-    index,
-    length,
-  } = entry.value;
-
-  if (index > 0) {
-    entry.value = {
-      index: index - 1,
-      length
-    };
-
-  } else if (currentStack.length > 1) {
-    stack.value = currentStack.slice(1);
-    previous();
-  }
-
-  updateHistoryIndex(-1);
-}
-
-export const canPrevious: ReadonlySignal<boolean> = computed(
-  () => {
-    const currentStack = stack.value;
-
-    for (let i = 0; i < currentStack.length; i++) {
-      const {
-        index,
-      } = currentStack[i].value;
-
-      if (index > 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-);
-
-export const canNext: ReadonlySignal<boolean> = computed(
-  () => {
-    const currentStack = stack.value;
-
-    for (let i = 0; i < currentStack.length; i++) {
-      const {
-        index,
+    // Keep length current, e.g. if Spotlight gets more children
+    if (length !== entry.value.length) {
+      entry.value = {
+        ...entry.value,
         length,
-      } = currentStack[i].value;
-
-      if (index < length - 1) {
-        return true;
       }
     }
-    return false;
+
+    useEffect(
+      () => {
+        addToStack(entry);
+      },
+      []
+    );
+
+    return entry.value.index;
   }
-);
+
+  // In React/Preact, the `useEffect` calls in children are run before those in
+  // their parents.
+  //
+  // Imagine a tree of components: `trunk`, `branch`, and `leafA`.  If each
+  // called `useTrapeze` and were directly added to the stack, it would be `
+  // [trunk, branch, leafA]`.  Then, when `next()` is called and `leafA` is
+  // replaced by `leafB` in the component tree, the stack would look like this:
+  // `[leafB, trunk, branch]`.  `leafB` is on the wrong end of the stack!
+  //
+  // The solution to this problem is to use a queue.  Instead of being added to
+  // the stack directly, `useTrapeze` calls are queued while we wait for all the
+  // other `useTrapeze` calls from this frame to be made.  Then, they are put on
+  // the stack in LIFO order.  This gives you `[leafA, branch, trunk]` for the
+  // first tree and then `[leafB, branch, trunk]` later on.  The leaves are put
+  // on the same side of the stack, regardless of if there were other
+  // `useTrapeze` calls in a frame.
+  //
+  // `queue` is merged into `stack` one frame after rendering, as well as if
+  // `next` or `previous` is called.  Hopefully this is sufficient.
+
+  const stack: Signal<Array<Entry>> = signal([]);
+  let queue: Array<Entry> = [];
+
+  function moveQueueToStack() {
+    if (queue.length) {
+      const currentStack = stack.value;
+      // `queue` puts the newest at the end.  `stack` puts the newest at the
+      // beginning.  This works around the inside-out ordering problem without
+      // needing to manually reorder anything.
+      stack.value = [
+        ...queue,
+        ...currentStack,
+      ];
+      queue = [];
+    }
+  }
+
+  function addToStack(entry: Entry) {
+    queue = [
+      ...queue,
+      entry,
+    ];
+    requestAnimationFrame(moveQueueToStack);
+  }
+
+  function next() {
+    moveQueueToStack();
+
+    const currentStack = stack.value;
+    const entry = currentStack[0];
+
+    const {
+      index,
+      length,
+    } = entry.value;
+
+    if (index < length - 1) {
+      entry.value = {
+        index: index + 1,
+        length
+      };
+
+    } else if (currentStack.length > 1) {
+      stack.value = currentStack.slice(1);
+      next();
+    }
+
+    updateHistoryIndex(+1);
+  }
+
+  function previous() {
+    moveQueueToStack();
+
+    const currentStack = stack.value;
+    const entry = currentStack[0];
+
+    const {
+      index,
+      length,
+    } = entry.value;
+
+    if (index > 0) {
+      entry.value = {
+        index: index - 1,
+        length
+      };
+
+    } else if (currentStack.length > 1) {
+      stack.value = currentStack.slice(1);
+      previous();
+    }
+
+    updateHistoryIndex(-1);
+  }
+
+  const canPrevious: ReadonlySignal<boolean> = computed(
+    () => {
+      const currentStack = stack.value;
+
+      for (let i = 0; i < currentStack.length; i++) {
+        const {
+          index,
+        } = currentStack[i].value;
+
+        if (index > 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+  );
+
+  const canNext: ReadonlySignal<boolean> = computed(
+    () => {
+      const currentStack = stack.value;
+
+      for (let i = 0; i < currentStack.length; i++) {
+        const {
+          index,
+          length,
+        } = currentStack[i].value;
+
+        if (index < length - 1) {
+          return true;
+        }
+      }
+      return false;
+    }
+  );
+
+  return {
+    Spotlight,
+    Build,
+    useTrapeze,
+    next,
+    previous,
+    canPrevious,
+    canNext,
+  }
+}
