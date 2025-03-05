@@ -27,6 +27,7 @@ import {
 } from 'preact/hooks';
 
 import {
+  ReadonlySignal,
   Signal,
   computed,
   signal,
@@ -243,7 +244,7 @@ export function previous() {
   updateHistoryIndex(-1);
 }
 
-export const canPrevious = computed(
+export const canPrevious: ReadonlySignal<boolean> = computed(
   () => {
     const currentStack = stack.value;
 
@@ -260,7 +261,7 @@ export const canPrevious = computed(
   }
 );
 
-export const canNext = computed(
+export const canNext: ReadonlySignal<boolean> = computed(
   () => {
     const currentStack = stack.value;
 
