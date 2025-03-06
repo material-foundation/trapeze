@@ -50,6 +50,9 @@
       ],
       "output": [
         "dist/index.html"
+      ],
+      "dependencies": [
+        "build:tsc"
       ]
     },
     "build:site": {
