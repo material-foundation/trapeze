@@ -140,25 +140,32 @@ export function createTrapeze({
   // `next` or `previous` is called.  Hopefully this is sufficient.
 
   const stack: Signal<Array<Entry>> = signal([]);
-  let queue: Array<Entry> = [];
+  const queue: Signal<Array<Entry>> = signal([]);
+
+  // queue was originally a plain [].  Refactoring Trapeze into
+  // createTrapeze+sharedInstance worked from `vite serve`, but was throwing
+  // `Cannot read properties of undefined (reading '__H')` after being processed
+  // by `vite build`.  Gemini suggested that wrapping `queue` in `signal` would
+  // ensure that Vite's optimizations don't break Trapeze, and indeed, that
+  // seems to be true.
 
   function moveQueueToStack() {
-    if (queue.length) {
+    if (queue.value.length) {
       const currentStack = stack.value;
       // `queue` puts the newest at the end.  `stack` puts the newest at the
       // beginning.  This works around the inside-out ordering problem without
       // needing to manually reorder anything.
       stack.value = [
-        ...queue,
+        ...queue.value,
         ...currentStack,
       ];
-      queue = [];
+      queue.value = [];
     }
   }
 
   function addToStack(entry: Entry) {
-    queue = [
-      ...queue,
+    queue.value = [
+      ...queue.value,
       entry,
     ];
     requestAnimationFrame(moveQueueToStack);
