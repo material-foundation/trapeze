@@ -1,0 +1,5 @@
+## Gemini Added Memories
+
+- Trapeze is a Preact library for creating paginated experiences, like slide decks and surveys. It uses the `@preact/signals` npm library for state management. The main components are Spotlight (shows one child at a time) and Build (shows children sequentially). The useTrapeze hook is used to manage the index of the paginated experience. Navigation is handled by next() and previous() functions, and the canNext and canPrevious signals indicate whether navigation is possible. Trapeze supports nested paginated experiences.
+- The original version of the Trapeze library (in the gesture-principles project) used a global mutable stack and a 'dirty hack' to reverse the stack on initialization. This was a pragmatic workaround for React's inside-out rendering order, and solving this problem was the key to making Trapeze a robust, open-source library.
+- When trapeze is checked out locally, `@preact/signals`, `preact`, and `preact/hooks` need resolutions fields to ensure they use the same Preact instance as the project they're colocated with.
