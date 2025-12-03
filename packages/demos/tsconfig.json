@@ -12,14 +12,14 @@
       "es2019",
       "dom"
     ],
-    "module": "es2020",
-    "moduleResolution": "node",
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "newLine": "lf",
     "noImplicitAny": true,
     "noImplicitThis": true,
     "outDir": "dist",
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "es6"
+    "target": "es2022"
   }
 }
