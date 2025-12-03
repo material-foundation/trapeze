@@ -16,7 +16,6 @@
 
 import {
   ComponentChildren,
-  createElement,
 } from 'preact';
 
 import {

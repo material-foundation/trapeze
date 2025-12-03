@@ -2,8 +2,8 @@
   "compilerOptions": {
     "declaration": false,
     "importHelpers": true,
-    "jsx": "react",
-    "jsxFactory": "createElement",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "lib": [
       "es2015",
       "es2016",

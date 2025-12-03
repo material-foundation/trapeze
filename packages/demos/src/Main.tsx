@@ -17,7 +17,6 @@
 import {
   ComponentChildren,
   Fragment,
-  createElement,
 } from 'preact';
 
 import {

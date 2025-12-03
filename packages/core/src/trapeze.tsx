@@ -15,10 +15,9 @@
  */
 
 import {
-  Fragment,
   ComponentChildren,
+  Fragment,
   VNode,
-  createElement,
   toChildArray,
 } from 'preact';
 

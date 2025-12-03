@@ -15,7 +15,6 @@
  */
 
 import {
-  createElement,
   render,
 } from 'preact';
 

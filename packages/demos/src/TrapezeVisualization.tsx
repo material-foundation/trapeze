@@ -17,7 +17,6 @@
 import {
   ComponentChildren,
   cloneElement,
-  createElement,
   toChildArray,
   VNode,
 } from 'preact';
