@@ -23,9 +23,9 @@ import {
   Block,
   Col,
   InlineBlock,
-  JsxstyleProps,
+  JsxstyleComponentStyleProps,
   Row,
-} from 'jsxstyle/preact';
+} from '@jsxstyle/preact';
 
 import {
   Build,
@@ -155,7 +155,7 @@ function Counter() {
   );
 }
 
-const CodeBlock = ({ children, ...props }: { children: ComponentChildren } & JsxstyleProps<{}>) => (
+const CodeBlock = ({ children, ...props }: { children: ComponentChildren } & JsxstyleComponentStyleProps) => (
   <Block component = 'pre'
     { ...props }
   >
@@ -165,7 +165,7 @@ const CodeBlock = ({ children, ...props }: { children: ComponentChildren } & Jsx
   </Block>
 );
 
-const CodeInline = ({ children, ...props }: { children: ComponentChildren } & JsxstyleProps<{}>) => (
+const CodeInline = ({ children, ...props }: { children: ComponentChildren } & JsxstyleComponentStyleProps) => (
   <Fragment>
     &nbsp;<InlineBlock component = 'code'
       fontWeight = 'bold'

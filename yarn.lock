@@ -194,6 +194,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsxstyle/core@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@jsxstyle/core@npm:3.0.2"
+  dependencies:
+    csstype: "npm:^3.1.3"
+  checksum: f106f92703cd13a30609bce3ea2a96a90a497421d45149a7f742de179fe669fb2a23447e965dc9430d3d844d002e26ff7521abc96fb8a5dd435e7dd4db87fd5f
+  languageName: node
+  linkType: hard
+
+"@jsxstyle/preact@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@jsxstyle/preact@npm:3.0.2"
+  peerDependencies:
+    "@jsxstyle/core": 3.0.2
+    preact: ^10.0.0
+  checksum: d7e1195c0583ff4d65cc9d7bf34f3166008d1cc1f3dc9116b57204b2b630836bb4e4de251e543a3573dcf6fbbba58c9c67309cd75d407cd95a97f7525d8cc10e
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -724,10 +743,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^2.6.7":
-  version: 2.6.21
-  resolution: "csstype@npm:2.6.21"
-  checksum: bf9072344fac1b56dc390fbc410b411bbc2a03fa9c3d243a74ff5687f94777f9da03a5681ac01efc2e68b51055e2c7d6a489185a85a8f01c976a85f9eec3b75e
+"csstype@npm:^3.1.3":
+  version: 3.2.3
+  resolution: "csstype@npm:3.2.3"
+  checksum: ad41baf7e2ffac65ab544d79107bf7cd1a4bb9bab9ac3302f59ab4ba655d5e30942a8ae46e10ba160c6f4ecea464cc95b975ca2fefbdeeacd6ac63f12f99fe1f
   languageName: node
   linkType: hard
 
@@ -1266,24 +1285,6 @@ __metadata:
   version: 3.2.0
   resolution: "jsonc-parser@npm:3.2.0"
   checksum: bd68b902e5f9394f01da97921f49c5084b2dc03a0c5b4fdb2a429f8d6f292686c1bf87badaeb0a8148d024192a88f5ad2e57b2918ba43fe25cf15f3371db64d4
-  languageName: node
-  linkType: hard
-
-"jsxstyle-utils@npm:^2.5.0":
-  version: 2.5.0
-  resolution: "jsxstyle-utils@npm:2.5.0"
-  dependencies:
-    csstype: "npm:^2.6.7"
-  checksum: a11189175bce5da73ef96e7544d21bc843a09bc3f17f170e187ee5baa8504464497f4be0e909f738733fe6378d5fcf7663e01f0bdf5eddf71a6e8921f0af3e15
-  languageName: node
-  linkType: hard
-
-"jsxstyle@npm:2.5.2":
-  version: 2.5.2
-  resolution: "jsxstyle@npm:2.5.2"
-  dependencies:
-    jsxstyle-utils: "npm:^2.5.0"
-  checksum: 2dda9bbdc16239faf5ffa444df8cb9017aacd741c235d1bc58a54b05090b1ccc0f6967433c551190d5e54bb7fd6d417f24e2dce6757284cc3195dd8e824eee9f
   languageName: node
   linkType: hard
 
@@ -2022,8 +2023,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "trapeze-demos@workspace:packages/demos"
   dependencies:
+    "@jsxstyle/core": "npm:^3.0.2"
+    "@jsxstyle/preact": "npm:^3.0.2"
     "@preact/signals": "npm:^1.1.5"
-    jsxstyle: "npm:2.5.2"
     preact: "npm:10.8.2"
     trapeze: "workspace:*"
     tslib: "npm:^2.4.0"

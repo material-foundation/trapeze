@@ -29,7 +29,7 @@ import {
   Block,
   Col,
   Row,
-} from 'jsxstyle/preact';
+} from '@jsxstyle/preact';
 
 import {
   next,

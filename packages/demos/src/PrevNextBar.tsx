@@ -24,9 +24,9 @@ import {
 
 import {
   Block,
-  JsxstyleProps,
+  JsxstyleComponentStyleProps,
   Row,
-} from 'jsxstyle/preact';
+} from '@jsxstyle/preact';
 
 import {
   next,
@@ -111,7 +111,8 @@ export const NavButton = ({
 }: {
   enabled?: boolean | Signal<boolean>,
   onClick?: () => void,
-} & JsxstyleProps<{}>) => (
+  children?: ComponentChildren,
+} & JsxstyleComponentStyleProps) => (
   <Row
     minHeight = { 48 }
     alignItems = 'center'
