@@ -21,13 +21,13 @@
     }
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "11.2.1",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "4.0.0",
     "@squoosh/cli": "0.6.3",
-    "tslib": "2.1.0",
-    "typescript": "5.1.6",
+    "tslib": "^2.4.0",
+    "typescript": "^5.9.3",
     "vite": "^6.2.0",
-    "wireit": "0.7.1"
+    "wireit": "0.14.1"
   },
   "packageManager": "yarn@4.0.1"
 }
