@@ -76,12 +76,12 @@
     }
   },
   "dependencies": {
-    "@jsxstyle/core": "^3.0.2",
-    "@jsxstyle/preact": "^3.0.2",
-    "@preact/signals": "^1.1.5",
-    "preact": "10.8.2",
+    "@jsxstyle/core": "3.0.2",
+    "@jsxstyle/preact": "3.0.2",
+    "@preact/signals": "1.2.0",
+    "preact": "10.18.2",
     "trapeze": "workspace:*",
-    "tslib": "^2.4.0"
+    "tslib": "2.4.0"
   },
   "author": "The Trapeze Authors (see AUTHORS)",
   "license": "Apache-2.0",
