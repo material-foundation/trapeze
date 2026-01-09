@@ -14,6 +14,10 @@ import { defineConfig } from 'vite'
 // now, this gets us the speed of vite's dev cycles without changing how our
 // packages are generated.
 
+// This is needed for top-level await.  To support vite as both as dev server
+// and a bundler, it needs to be passed to both `optimizeDeps` and `build`.
+const target = 'es2022';
+
 export default defineConfig(
   ({ command }) => ({
     // This allows us to colocate the HTML file with its scripts without getting
@@ -27,7 +31,15 @@ export default defineConfig(
         ? ['typescript', 'browser', 'module']
         : ['browser', 'module'],
     },
+
+    optimizeDeps: {
+      esbuildOptions: {
+        target,
+      },
+    },
     build: {
+      target,
+
       // ./dist/../site == ./site
       outDir: '../site',
     },
